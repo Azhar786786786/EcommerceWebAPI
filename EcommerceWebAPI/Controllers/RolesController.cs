@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EcommerceWebAPI.Data;
+using EcommerceWebAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +10,34 @@ namespace EcommerceWebAPI.Controllers
     [ApiController]
     public class RolesController : ControllerBase
     {
-        // GET: api/<RolesController>
+        private readonly ApplicationDbContext _context;
+        public RolesController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult GetAll()
         {
-            return new string[] { "value1", "value2" };
+            var roles = _context.Roles.ToList();
+            return Ok(roles);
         }
 
-        // GET api/<RolesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<RolesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Create([FromBody] Role role)
         {
-        }
+            if (role == null)
+            {
+                return NotFound();
+            }
 
-        // PUT api/<RolesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+            Role roleToUpdate = new Role { RoleId = role.RoleId, RoleName = role.RoleName, UserRoles = role.UserRoles };
 
-        // DELETE api/<RolesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            _context.Roles.Add(roleToUpdate);
+            _context.SaveChanges();
+
+
+            return Ok("Yes Updated.");
         }
     }
 }
